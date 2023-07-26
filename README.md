@@ -1,29 +1,15 @@
 # carver_sql_to_es_front
 
-#### 介绍
-{**以下是 Gitee 平台说明，您可以替换此简介**
-Gitee 是 OSCHINA 推出的基于 Git 的代码托管平台（同时支持 SVN）。专为开发者提供稳定、高效、安全的云端软件开发协作平台
-无论是个人、团队、或是企业，都能够用 Gitee 实现代码托管、项目管理、协作开发。企业项目请看 [https://gitee.com/enterprises](https://gitee.com/enterprises)}
+#### 一：项目介绍
+**该项目是一个Sql转Es的DML的在线工具**
 
-#### 软件架构
-软件架构说明
+#### 二：软件架构
+ **前端技术框架：layui、jquery等，后端技术主要是：golang，后端项目地址为：[后端项目](https://gitee.com/lijialongs/carver_sql_to_es_front)** 
 
 
-#### 安装教程
+#### 三：安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+ **git clone 项目地址 【克隆到本地】直接访问该index.html文件即可** 
 
-#### 使用说明
+大家的star就是对我最大的支持哦 :stuck_out_tongue_winking_eye: 
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
