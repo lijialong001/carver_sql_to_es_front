@@ -4,7 +4,7 @@
 **该项目是一个Sql转Es的DML的在线工具**
 
 #### 二：软件架构
- **前端技术框架：layui、jquery等，后端技术主要是：golang，后端项目地址为：[后端项目](https://gitee.com/lijialongs/carver_sql_to_es_front)** 
+ **前端技术框架：layui、jquery等，后端技术主要是：golang，后端项目地址为：[后端项目](https://gitee.com/lijialongs/carver_sql_to_es_api)** 
 
 
 #### 三：安装教程
