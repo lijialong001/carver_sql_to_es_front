@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Carver在线sql转es</title>
+    <link rel="stylesheet" href="highlight/styles/base16/material-darker.min.css">
+    <link rel="stylesheet" href="carver/layui-main/dist/css/layui.css"/>
+    <script src="highlight/highlight.min.js"></script>
+    <script src="carver/jquery-3.7.0/jquery-3.7.0.js"></script>
+    <script src="carver/layui-main/dist/layui.js"></script>
+    <style>
+        body {
+            font-family: monospace;
+            background-image: url('./carver/imgs/bg.jpeg');
+            background-size: cover;
+            background-position: center center;
+        }
+
+        .logo {
+            margin: 0 auto;
+            color: #fff;
+            padding: 30px;
+            display: inline-block;
+        }
+
+        .main {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .left, .right, .input {
+            width: 40%;
+            border: 1px solid #fff;
+            height: 100vh;
+            background: #212121;
+            border-radius: 9px;
+        }
+
+        .left, .right {
+            box-shadow: 0px 0px 15px #fff;
+        }
+
+        .right {
+            background: #212121;
+        }
+
+        .json {
+            width: 37vw;
+            height: 93vh;
+        }
+
+        .click_left, .click_right {
+            float: right;
+            margin: -18px 10px auto auto;
+            position: relative;
+        }
+
+        .input {
+            width: 94%;
+            margin: 18px 3%;
+            background: #212121;
+            color: #fff;
+            letter-spacing: 1px;
+            height: 85%;
+            border: none;
+            resize: none;
+        }
+
+        .to_click {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8%;
+            height: 40px;
+            transform: translate(-50%, -50%);
+        }
+
+        .right_menu {
+            color: #ccc;
+            display: inline-block;
+        }
+
+        .right_menu > a > img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+        }
+
+        .top {
+            width: 100%;
+            text-align: center;
+        }
+
+        .left_title, .right_title {
+            color: #ccc;
+            text-align: center;
+            padding-top: 10px;
+            font-weight: bold;
+        }
+
+        .to_es {
+            color: #0ebeff;
+            font-size: 16px;
+            background: #fff;
+            border: none;
+            outline: none;
+            z-index: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .to_es::before {
+            content: '';
+            position: absolute;
+            background: #0ebeff;
+            width: 200%;
+            height: 200%;
+            z-index: -2;
+            left: 50%;
+            top: 50%;
+            transform-origin: 0 0;
+            animation: rotate 3s infinite linear;
+        }
+
+        .to_es::after {
+            content: '';
+            position: absolute;
+            background: #fff;
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
+            left: 2px;
+            top: 2px;
+            border-radius: 10px;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            to {
+                transform: rotate(1turn);
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<!--顶部区域-->
+<div class="top">
+    <h1 class="logo">Carver在线sql转es </h1>
+    <div class="right_menu">
+        <span style="vertical-align: middle">去支持</span>
+        <a href="https://gitee.com/lijialongs/carver_sql_to_es_front">
+            <img src="./carver/imgs/github.jpeg" alt="去github支持吧"/>
+        </a>
+        <a href="https://gitee.com/lijialongs/carver_sql_to_es_front">
+            <img src="./carver/imgs/gitee.jpeg" alt="去gitee支持吧"/>
+        </a>
+
+    </div>
+    <button onclick="formatJSON()" class="to_click to_es">格式化</button>
+</div>
+
+<!--主要区域-->
+<div class="main">
+
+    <!--左侧sql区-->
+    <div class="left">
+        <div class="left_title">
+            SQL
+        </div>
+        <button class="layui-btn layui-btn-primary layui-border-blue layui-btn-xs click_left" onclick="copyClick(1)">
+            一键复制
+        </button>
+        <textarea class="input"></textarea>
+    </div>
+
+    <!--右侧ElasticSearch DSL区-->
+    <div class="right">
+        <div class="right_title">
+            ElasticSearch DSL
+        </div>
+        <button class="layui-btn layui-btn-primary layui-border-blue layui-btn-xs click_right" onclick="copyClick(2)">
+            一键复制
+        </button>
+        <div class="output" id="output"></div>
+    </div>
+
+</div>
+
+
+<script>
+
+
+    $(function () {
+        layui.use(function () {
+            var layer = layui.layer
+            const user_info = localStorage.getItem('is_confirm')
+            if (!user_info) {
+                layer.confirm('欢迎使用Carver在线工具【SQL 转 ElasticSearch DSL】!', {
+                    btn: ['我知道了!', '确定'],//按钮
+                    title: "<i class='layui-icon layui-icon-speaker' style='font-size: 30px; color: #1E9FFF;float:left'></i> <div style='float:left'>公告</div> "
+                }, function () {
+                    localStorage.setItem('is_confirm', 1)
+                    layer.closeAll();
+                }, function () {
+                    localStorage.setItem('is_confirm', 1)
+                });
+            }
+
+        })
+
+        //绑定自动失去焦点
+        $(".input").blur(function () {
+            formatJson()
+        })
+    })
+
+    // 一键转化
+    function formatJson() {
+        const left_input = document.querySelector('.input').value
+        const output = document.querySelector('#output')
+
+        try {
+
+            layui.use(function () {
+                var layer = layui.layer
+                $.ajax({
+                    url: 'http://sql_to_es_api.lijialong.site:456/sql_to_es',
+                    type: 'get',
+                    dataType: 'json',
+                    data: {sqls: left_input},
+                    success: function (data) {
+                        if (data.code != 200) {
+                            layer.msg(data.msg)
+                            return
+                        } else if (data.code == 200 && !data.data.es_data) {
+                            layer.msg('请输入正确的sql格式!')
+                            return
+                        }
+                        const json = JSON.parse(data.data.es_data);
+                        const formattedJSON = JSON.stringify(json, null, 2)
+                        output.innerHTML = `<pre><code class="json">${formattedJSON}</code></pre>`
+                        hljs.highlightAll();
+                    }
+                })
+
+            });
+
+
+        } catch (error) {
+            output.innerHTML = `<pre><code class="json">${error}</code></pre>`
+            hljs.highlightAll()
+        }
+    }
+
+    // 一键复制
+    function copyClick(type) {
+        const click_type = type || 2
+        var temp_input = document.createElement('input') // 创建input对象
+        var json_div = ''
+        switch (click_type) {
+            case 1:
+                json_div = document.querySelector('.input') // 获取需要复制文字的容器
+                temp_input.value = json_div.value // 设置复制内容
+                break;
+            case 2:
+                json_div = document.querySelector('.json') // 获取需要复制文字的容器
+                if (!json_div) {
+                    layer.msg('复制成功!')
+                    return
+                }
+                temp_input.value = json_div.innerText // 设置复制内容
+                break;
+        }
+
+        try {
+
+            document.body.appendChild(temp_input) // 添加临时实例
+            temp_input.select() // 选择实例内容
+            document.execCommand('Copy') // 执行复制
+            document.body.removeChild(temp_input) // 删除临时实例
+            layer.msg('复制成功!')
+        } catch (error) {
+            layer.msg('复制成功!')
+        }
+
+    }
+
+    hljs.initHighlightingOnLoad()
+
+</script>
+</body>
+</html>
