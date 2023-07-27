@@ -195,6 +195,7 @@
 
     $(function () {
         layui.use(function () {
+            new DperCoolClick().init()
             var layer = layui.layer
             const user_info = localStorage.getItem('is_confirm')
             if (!user_info) {
